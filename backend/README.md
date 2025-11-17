@@ -1,26 +1,15 @@
-# EMSE Notes App Backend API
+# EMSE Notes App Backend 
 
-This is a RESTful API for managing notes and tasks. Notes can have multiple associated tasks, and each task belongs to a specific note. The API provides endpoints to create, retrieve, update, and delete notes and tasks.
+This backend provides an HTTP RESTful API for managing notes and tasks. It also provide a WebSocket API to be notified
+of changes in the model.
 
-## Table of Contents
+Notes can have multiple associated tasks, and each task belongs to a specific note. 
 
-- [Getting Started](#getting-started)
-- [Endpoints](#endpoints)
-  - [Notes](#notes)
-    - [Create a Note](#create-a-note)
-    - [Get a Note](#get-a-note)
-    - [List All Notes](#list-all-notes)
-    - [Delete a Note](#delete-a-note)
-  - [Tasks](#tasks)
-    - [Create a Task for a Note](#create-a-task-for-a-note)
-    - [List Tasks of a Note](#list-tasks-of-a-note)
-    - [Delete a Task](#delete-a-task)
-- [Database](#database)
-- [Testing](#testing)
+The API provides endpoints to create, retrieve, update, and delete notes and tasks.
 
----
+[[_TOC_]]
 
-## Getting Started
+# Getting started
 
 1. Install dependencies:
 
@@ -28,205 +17,69 @@ This is a RESTful API for managing notes and tasks. Notes can have multiple asso
    npm install
    ```
 
-2. To initialize the database with fresh tables, run:
-
-    ```bash
-    npm run db:reset
-    ```
 
 3. Start the server:
 
     ```bash
-    npm start
+    npm run start
     ```
 
-The server will start on http://localhost:3000 by default.
+2. If you want to reset the database (erase existing data), you can run
+
+        ```bash
+        npm run db:reset
+        ```
+
+The server will start on http://localhost:3014 by default.
 
 ---
 
-## Endpoints
+# API Specification
 
-### Notes
-#### Create a Note
+See [API_SPECIFICATION.md](./API_SPECIFICATION.md)
 
-**Endpoint:** `POST /notes`
+# Developper information (not for students)
 
-**Request Body:**
+## Typescript
 
-- `title` (string) - **required**: The title of the note.
-- `status` (string) - **required**: The status of the note. Allowed values are `"urgent"`, `"serious"`, and `"unimportant"`.
+Source file must be transpiled `npx tsc`. Beware, if you specify manually a file path, the tsconfig.json is ignored.
 
-**Example Request:**
+To run the server, first transpile the source, then run node on the generated JS: `npx tsc && node dist/server.js`.
 
-```json
-{
-  "title": "My Note",
-  "status": "urgent"
-}
-```
+To run the test, first transpile the source tests, then run vitest on the generated JS: `npx tsc && npx vitest dist/test`
+(the vitest config files points directly to the dist/test folder)
 
-**Response:**
+The source map are generated, so vitest will output debug info pointing to the source typescript file, and node debugging 
+will also work.
 
-- `200 OK` on success with the created note object:
+## Debugging
 
-    ```json
-    {
-        "id": 1,
-        "title": "My Note",
-        "status": "urgent",
-        "nbTasks": 0
-    }
-    ```
-
-- `400 Bad` Request if:
-    - title is missing.
-    - status is missing or not one of the allowed values.
-
-    **Example Error Response:**
-
-    ```json
-    {
-    "error": "The 'title' field is required."
-    }
-    ```
-
-#### Get a Note
-
-**Endpoint:** `GET /notes/:id`
-
-**Response:**
-
-- `200 OK` with the note object:
-
-    ```json
-    {
-        "id": 1,
-        "title": "My Note",
-        "status": "urgent",
-        "nbTasks": 2
-    }
-    ```
-
-- `404 Not Found` if the note does not exist.
-
-#### List All Notes
-
-**Endpoint:** `GET /notes`
-
-**Response:**
-
-- `200 OK` with an array of all note objects:
-
-    ```json
-    [
-        {
-        "id": 1,
-        "title": "My Note",
-        "status": "urgent",
-        "nbTasks": 2
-        },
-        {
-        "id": 2,
-        "title": "Another Note",
-        "status": "serious",
-        "nbTasks": 0
-        }
-    ]
-    ```
-
-#### Delete a Note
-
-**Endpoint:** `DELETE /notes/:id`
-
-**Response:**
-
-- `200 OK` if the note was deleted successfully.
-- `404 Not` Found if the note does not exist.
-
-### Tasks
-#### Create a Task for a Note
-
-**Endpoint:** `POST /notes/:id/tasks`
-
-**Request Body:**
-
-- `content` (string) - **required**: The content of the task.
-
-**Example Request:**
-
-```json
-{
-  "content": "My Task Content"
-}
-```
-
-**Response:**
-
-- `200 OK` with the created task object:
-
-    ```json
-    {
-    "id": 1,
-    "content": "My Task Content",
-    "noteId": 1
-    }
-    ```
-
-- `400 Bad Request` if content is missing.
-
-- `404 Not Found` if the note does not exist.
-
-#### List Tasks of a Note
-
-**Endpoint:** `GET /notes/:id/tasks`
-
-**Response:**
-
-- `200 OK` with an array of tasks for the specified note:
-
-    ```json
-    [
-        {
-        "id": 1,
-        "content": "My Task Content"
-        },
-        {
-        "id": 2,
-        "content": "Another Task"
-        }
-    ]
-    ```
-
-- `404 Not Found` if the note does not exist.
-
-#### Delete a Task
-
-**Endpoint:** `DELETE /tasks/:id`
-
-**Response:**
-
-- `200 OK` if the task was deleted successfully.
-- `404 Not Found` if the task does not exist.
-
-## Database
-
-The server uses an SQLite database located in the same directory as the server file. To reset the database with pristine tables, use the following command:
+### To debug the test suites: 
 
 ```bash
-npm run db:reset
+npx vitest --inspect-brk --no-file-parallelism  --test-timeout=0 dist/test/messages.test.js
 ```
 
-This command deletes the current database file (if it exists) and creates a new one with empty notes and tasks tables.
+Possible bug when the previous node process doesn't stop listening on the debug port 9229. Is this case,
+check processes still attached to that port with:
 
-
-## Error Handling
-
-The API returns `400 Bad Request` for validation errors, `404 Not Found` for missing resources, and `500 Internal Server Error` for unexpected server issues.
-
-#### Example 400 Error Response:
-
-```json
-{
-  "error": "Invalid status. Allowed values are 'urgent', 'serious', or 'unimportant'."
-}
+```bash
+lsof -i :9229
 ```
+
+And kill them.
+
+
+### To debug directly the application
+
+```bash
+npx node --inspect-brk dist/server.js
+```
+
+(Running `ts-node --inspect-brk` doesn't work for whatever reason, it doesn't catch the flag `--inspect-brk`)
+
+
+### Attach chrome debugger
+
+Open chrome://inspect 
+

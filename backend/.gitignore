@@ -3,5 +3,5 @@
 
 node_modules/
 .npm
-
-database.sqlite
+dist/
+*.sqlite
