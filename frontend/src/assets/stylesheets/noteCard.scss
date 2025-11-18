@@ -1,0 +1,41 @@
+@use 'colors.scss' as appColors;
+@use 'mediaQueryScreens.scss';
+
+$gutter-size: 15px;
+
+/** 
+ * Common CSS rules that apply to both Note and NoteCreationForm
+ * components
+ */
+@mixin noteCard {
+    min-height: 200px;
+    border-radius: 10px;
+    padding: 10px;
+    color: white;
+  
+
+    &.unimportant {
+      background-color: appColors.$dark-green;
+    }
+
+    &.serious {
+      background-color: appColors.$dark-yellow;
+    }
+
+    &.urgent {
+      background-color: appColors.$dark-red;
+    }
+
+
+  @include mediaQueryScreens.small {
+    width: 100%;
+  }
+
+  @include mediaQueryScreens.medium {
+    width: calc((100% - $gutter-size) / 2);
+  }
+
+  @include mediaQueryScreens.large {
+    width: calc((100% - ($gutter-size * 2)) / 3);
+  }
+}

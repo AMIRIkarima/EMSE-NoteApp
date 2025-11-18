@@ -1,35 +1,49 @@
-# EMSE Vue Demo
+# EMSE's Notes Board
 
-This template should help get you started developing with Vue 3 in Vite.
+This is the starting place to implement the frontend of our Notes application.
 
-## Recommended IDE Setup
+The project was scaffolded by Vue JS default tool (+ some minor configuration adjustements
+I made). It uses Vite as a bundler, that provide you the following functionalities out of the box:
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+- Transpile .vue files into regular JS and CSS files
+- Inject all these generated file into `index.html` so the browser just has to load index.html and
+  have your application working
+- In development mode, it provides a Hot Module Reloader: it detect any changes you make to your 
+  files, recompiles them and trigger a reload in the web browser
+- It can transpile other languages that you use in the .Vue files as regular JS and CSS (for example
+  you can use Typescript and Sass).
+- If you build your project for deployment (not necessary within the context of this assignment),
+  it will bundle and minify your JS and CSS code into a single file. You can check it by running
+  `npm run build` and looking what's in the `dist/` directory. You could then serve your application
+  with a minimalist web server, and just the content of the `dist/` directory.
 
-## Customize configuration
+# Commands
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+## Install the dependencies
 
-## Project Setup
+The development environment (all the Vue tools, the Vite bundler, etc.) runs with NodeJS. You need
+to install all nodeJS dependencies on the first time with: 
 
-```sh
+```
 npm install
 ```
 
-### Compile and Hot-Reload for Development
+If you don't install new dependencies, you won't need to run it again. Dependencies are installed in 
+the `node_modules` directory. If you delete this directory, you can always run again the install command.
 
-```sh
+```
+
+## Start the development server
+
+```
 npm run dev
 ```
 
-### Compile and Minify for Production
+Normally you will only need this for the project. The server should auto reload your app each time you make
+a change. However, sometimes after a compile error, it fails to detect new changes, you may need to restart it.
 
-```sh
-npm run build
+## Build the application for deployment
+
 ```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
+npm run build
 ```
