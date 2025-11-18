@@ -60,7 +60,7 @@ export default {
          * - on success, read the response from the server to get the complete note object (with its ID, and any possible
          *   new data that the server created by default)
          * - send the new note object as a custom event, so the parent component of this one can be aware of the new note.
-         *   For this we will use this.$emit(newNote)
+         *   For this we will use this.$emit('onNoteCreated', newNote)
          */
     }
   }
