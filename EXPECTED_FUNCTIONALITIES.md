@@ -85,15 +85,15 @@ export function sendMessage(message) {
 
 # Features to implement
 
-## Displaying all tasks for each note
+### Displaying all tasks for each note
 
-## Making the "trash" icon work on notes and individual tasks
+### Making the "trash" icon work on notes and individual tasks
 
 You don't need to make a confirm dialog, a single click on the trash icon will delete the task or the note immediatly
 
 (you need to delete on the server, and update your view accordingly)
 
-## Implement the NoteCreationForm component
+### Implement the NoteCreationForm component
 
 The user can create a new component by clicking the button or by pressing the <Enter> key. 
 
@@ -103,13 +103,13 @@ Update the color of the form depending on the selected status for the new note.
 
 Update the list of notes after a succesfull note creation
 
-## Creating new tasks
+### Creating new tasks
 
 Modify the Note component, to allow the creation of new tasks.
 
 The user can create a task by clicking on the "+" button, or by pressing the <Enter> key
 
-## Implement a filter widget
+### Implement a filter widget
 
 For this you will need to create a new component. It will look like this:
 
@@ -121,12 +121,12 @@ Don't forget to make it visible which filter is currently selected.
 
 You will need to use `emits` to communicate upward between your filter component and the rest of your app.
 
-## Display error messages
+### Display error messages
 
 For any unexpected error (on network requests), display a customized message in the ErrorOverlay. This is for
 truely unexpected errors (ones you cannot prevent), not for validation of user input.
 
-## Synchronizing the view thanks to WebSocket
+### Synchronizing the view thanks to WebSocket
 
 To update the view of your app based on changes made by other users, you will subscribe to the websocket
 provided by the backend: ws://localhost:3014
@@ -139,7 +139,7 @@ You will use the native WebSocket API :  https://developer.mozilla.org/en-US/doc
 Try to not open too many websockets connections (unecessary network overload). Ideally, only one connection
 is necessary, and you make it available globally accross your application.
 
-### Bonus feature
+## Bonus feature
 
 The HTTP provides an endpoint `PUT /notes/:id/restore`, that restores a Note that was previously deleted
 (the note ID is still valid for this call).
