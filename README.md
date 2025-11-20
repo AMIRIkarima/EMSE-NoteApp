@@ -88,4 +88,11 @@ The backend API specification for the project is located at [backend/API_SPECIFI
 
 Detailled instructions here: [Instructions](./EXPECTED_FUNCTIONALITIES.md)
 
+### Public online backend
 
+The backend is also running online at https://vps.quentin-richaud.eu:4001 (for HTTP requests) and wss://vps.quentin-richaud.eu:4001
+for WebSockets. You can use it if you want to easily try how your frontend works with multiple users simultenaously.
+
+### Example frontend implementation
+
+I have made an example working frontend here: https://cours-dev-wep-tp-6-working-implementation-f6891d.gitlab.io/
