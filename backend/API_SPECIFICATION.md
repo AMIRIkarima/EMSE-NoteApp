@@ -99,7 +99,32 @@
 **Response:**
 
 - `200 OK` if the note was deleted successfully.
-- `404 Not` Found if the note does not exist.
+- `404 Not Found` if the note does not exist.
+
+#### Restore a deleted Note
+
+**Endpoint:** `PUT /notes/:id/restore`
+
+**Response:**
+
+- `200 OK` with a JSON object containing the restored note
+
+```
+{
+    "id": 1,
+    "title": "My note",
+    "status": "urgent",
+    "tasks": [{
+        "id": 1,
+        "content": "My Task Content"
+    }, 
+    ...
+    ]
+}
+
+```
+
+- `404 Not Found` if no deleted note with this id exist
 
 ### Tasks
 #### Create a Task for a Note
