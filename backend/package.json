@@ -1,8 +1,8 @@
 {
-  "name": "tp5-js-backend",
-  "version": "2.0.0",
+  "name": "tp6-js-backend",
+  "version": "1.1.1",
   "type": "module",
-  "description": "Backend for TP 5 (Javascript) of EMSE Web Frontend Development lecture",
+  "description": "Backend For VueJS TP",
   "scripts": {
     "start": "tsc && node --enable-source-maps dist/src/index.js",
     "start:debug": "tsc && node --inspect-brk dist/src/index.js",

@@ -1,4 +1,4 @@
-import type { Note, Task, NoteStatus } from './model';
+import type { Note, Task, NoteStatus } from './model.js';
 
 export type NoteObserver = (note: Note) => void;
 

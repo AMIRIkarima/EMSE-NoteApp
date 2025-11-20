@@ -7,11 +7,15 @@ import * as wsApi from './wsApi.js';
 import { SqliteStorage } from './sqliteStorage.js';
 import type { Storage } from './storage.js';
 import { createServer, Server } from 'http';
-import { WebSocketServer } from 'ws';
 
 const env = process.env.NODE_ENV || 'development';
-const isEnvProd = () => env === 'production';
 const isEnvTest = () => env === 'test';
+
+export type AppGlobals = {
+  storage: Storage;
+  expressApp: Express;
+  httpServer: Server;
+};
 
 /**
  * Prepare command line arguments
@@ -40,35 +44,10 @@ const sqliteDbPath = program.opts().sqliteFile;
 /** Initialize storage */
 const storage = new SqliteStorage({ dbPath: sqliteDbPath });
 
+/** Setup app */
+const { httpServer } = setupApp({ storage });
 
-export type AppGlobals = {
-  storage: Storage,
-  expressApp: Express,
-  httpServer: Server
-}
-
-export function setupApp(p: {storage: Storage}): AppGlobals {
-  const {storage} = p;
-
-  /** Setup Express server */
-  const app = express();
-  app.use(cors());
-  app.use(express.json());
-  
-  app.get('/version', (req, res) => {
-    res.json({ version: '0.3' });
-  });
-  
-  httpApi.setup(app, storage);
-  
-  const httpServer = createServer(app);
-  wsApi.setup(httpServer, storage);
-
-  return {storage, expressApp: app, httpServer};
-}
-
-const {httpServer} = setupApp({storage});
-
+/** Start app */
 if (!isEnvTest()) {
   // Start the server
   httpServer.listen({ port }, () =>
@@ -76,4 +55,21 @@ if (!isEnvTest()) {
       `Server is running on port ${port}. You can access the backend at http://localhost:${port}`
     )
   );
+}
+
+/** Setup function, to setup the app differently in normal use, and in unit tests  */
+export function setupApp(p: { storage: Storage }): AppGlobals {
+  const { storage } = p;
+
+  /** Setup Express server */
+  const app = express();
+  app.use(cors());
+  app.use(express.json());
+
+  httpApi.setup(app, storage);
+
+  const httpServer = createServer(app);
+  wsApi.setup(httpServer, storage);
+
+  return { storage, expressApp: app, httpServer };
 }

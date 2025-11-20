@@ -31,4 +31,3 @@ export function populateDatase(db: Database) {
       ('Task 1 for Note 2', 2)
     `);
 }
-

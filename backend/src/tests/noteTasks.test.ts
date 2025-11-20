@@ -1,17 +1,15 @@
-import { expect, it, beforeEach, beforeAll, afterAll, describe } from 'vitest';
+import { expect, it, beforeEach, beforeAll, describe } from 'vitest';
 import { default as supertest } from 'supertest';
 import type { Express } from 'express';
-import type { Database } from 'better-sqlite3';
 import { SqliteStorage } from '../sqliteStorage.js';
 import { setupApp } from '../index.js';
-
 
 let app: Express;
 let db: SqliteStorage;
 
 beforeAll(() => {
   db = new SqliteStorage();
-  const appGlobals = setupApp({storage: db});
+  const appGlobals = setupApp({ storage: db });
   app = appGlobals.expressApp;
 });
 
@@ -20,8 +18,6 @@ beforeEach(() => {
   db.deleteTables();
   db.createTables();
 });
-
-
 
 describe('/notes/:id/tasks API Endpoints', () => {
   let noteId: number;
@@ -45,9 +41,15 @@ describe('/notes/:id/tasks API Endpoints', () => {
   });
 
   it('List tasks of a note', async () => {
-    await supertest(app).post(`/notes/${noteId}/tasks`).send({ content: 'Content 1' });
-    await supertest(app).post(`/notes/${noteId}/tasks`).send({ content: 'Content 2' });
-    await supertest(app).post(`/notes/${noteId}/tasks`).send({ content: 'Content 3' });
+    await supertest(app)
+      .post(`/notes/${noteId}/tasks`)
+      .send({ content: 'Content 1' });
+    await supertest(app)
+      .post(`/notes/${noteId}/tasks`)
+      .send({ content: 'Content 2' });
+    await supertest(app)
+      .post(`/notes/${noteId}/tasks`)
+      .send({ content: 'Content 3' });
 
     const response = await supertest(app).get(`/notes/${noteId}/tasks`);
 

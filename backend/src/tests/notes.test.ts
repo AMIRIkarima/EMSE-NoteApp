@@ -1,7 +1,6 @@
-import { expect, it, beforeEach, beforeAll, afterAll, describe } from 'vitest';
+import { expect, it, beforeEach, beforeAll, describe } from 'vitest';
 import { default as supertest } from 'supertest';
 import type { Express } from 'express';
-import type { Database } from 'better-sqlite3';
 import { SqliteStorage } from '../sqliteStorage.js';
 import { setupApp } from '../index.js';
 
@@ -10,7 +9,7 @@ let db: SqliteStorage;
 
 beforeAll(() => {
   db = new SqliteStorage();
-  const appGlobals = setupApp({storage: db});
+  const appGlobals = setupApp({ storage: db });
   app = appGlobals.expressApp;
 });
 
@@ -19,8 +18,6 @@ beforeEach(() => {
   db.deleteTables();
   db.createTables();
 });
-
-
 
 describe('/notes API Endpoints', () => {
   it('Create a new note with valid title and status', async () => {
@@ -41,7 +38,7 @@ describe('/notes API Endpoints', () => {
       .send({ status: 'urgent' });
 
     expect(response.status).toBe(400);
-    expect(response.body.error).toBe('The \'title\' field is required.');
+    expect(response.body.error).toBe("The 'title' field is required.");
   });
 
   it('Reject creation if status is missing', async () => {
@@ -50,7 +47,9 @@ describe('/notes API Endpoints', () => {
       .send({ title: 'My Note' });
 
     expect(response.status).toBe(400);
-    expect(response.body.error).toBe('Invalid status. Allowed values are \'urgent\', \'serious\', or \'unimportant\'.');
+    expect(response.body.error).toBe(
+      "Invalid status. Allowed values are 'urgent', 'serious', or 'unimportant'."
+    );
   });
 
   it('Reject creation if status is invalid', async () => {
@@ -59,14 +58,23 @@ describe('/notes API Endpoints', () => {
       .send({ title: 'My Note', status: 'invalid-status' });
 
     expect(response.status).toBe(400);
-    expect(response.body.error).toBe('Invalid status. Allowed values are \'urgent\', \'serious\', or \'unimportant\'.');
+    expect(response.body.error).toBe(
+      "Invalid status. Allowed values are 'urgent', 'serious', or 'unimportant'."
+    );
   });
 
   it('Get a single note', async () => {
-    const note = (await supertest(app).post('/notes').send({ title: 'My Note', status: 'urgent' })).body;
-    await supertest(app).post(`/notes/${note.id}/tasks`).send({ content: 'Content 1' });
-    await supertest(app).post(`/notes/${note.id}/tasks`).send({ content: 'Content 2' });
-
+    const note = (
+      await supertest(app)
+        .post('/notes')
+        .send({ title: 'My Note', status: 'urgent' })
+    ).body;
+    await supertest(app)
+      .post(`/notes/${note.id}/tasks`)
+      .send({ content: 'Content 1' });
+    await supertest(app)
+      .post(`/notes/${note.id}/tasks`)
+      .send({ content: 'Content 2' });
 
     const response = await supertest(app).get(`/notes/${note.id}`);
     expect(response.status).toBe(200);
@@ -77,11 +85,15 @@ describe('/notes API Endpoints', () => {
   });
 
   it('Get list of notes', async () => {
-    await supertest(app).post('/notes').send({ title: 'My Note1', status: 'urgent' });
-    await supertest(app).post('/notes').send({ title: 'My Note2', status: 'urgent' });
-    await supertest(app).post('/notes').send({ title: 'My Note3', status: 'urgent' });
-
-
+    await supertest(app)
+      .post('/notes')
+      .send({ title: 'My Note1', status: 'urgent' });
+    await supertest(app)
+      .post('/notes')
+      .send({ title: 'My Note2', status: 'urgent' });
+    await supertest(app)
+      .post('/notes')
+      .send({ title: 'My Note3', status: 'urgent' });
 
     const response = await supertest(app).get('/notes');
     expect(response.status).toBe(200);
@@ -94,12 +106,30 @@ describe('/notes API Endpoints', () => {
   });
 
   it('Delete a note', async () => {
-    const createdNote = (await supertest(app).post('/notes').send({ title: 'My Note', status: 'urgent' })).body;  
+    const createdNote = (
+      await supertest(app)
+        .post('/notes')
+        .send({ title: 'My Note', status: 'urgent' })
+    ).body;
 
     const response = await supertest(app).delete(`/notes/${createdNote.id}`);
     expect(response.status).toBe(200);
 
     const getResponse = await supertest(app).get(`/notes/${createdNote.id}`);
     expect(getResponse.status).toBe(404); // Should return 404 as note is deleted
+  });
+});
+
+describe('/notes/:id/restore API endpoint', () => {
+  it('Can restore a previously deleted note', () => {
+    // TODO
+    /**
+     *   - create a note, with tasks. check it appears in GET /notes
+     *   - delete that note, check it does not appear anymore in GET /notes
+     *   - check that GET /notes/:id gives 404
+     *   - call /notes/:id/restore. Check status 200, and restored note object
+     *   - check that it appears in GET /notes and GET /note/:id
+     *   - check that tasks are restored too
+     */
   });
 });

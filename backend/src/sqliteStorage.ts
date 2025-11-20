@@ -145,11 +145,11 @@ export class SqliteStorage implements Storage {
   }
 
   createTables(): void {
-    createTables(this.db)
+    createTables(this.db);
   }
 
   deleteTables(): void {
-    deleteTables(this.db)
+    deleteTables(this.db);
   }
 }
 
@@ -176,7 +176,6 @@ export function createTables(db: Database): Database {
   console.log('Tasks table created.');
   return db;
 }
-
 
 export function deleteTables(db: Database) {
   db.prepare('DELETE FROM tasks;').run();

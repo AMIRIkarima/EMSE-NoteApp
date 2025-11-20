@@ -1,7 +1,16 @@
 import type { Express, Response } from 'express';
 import { InvalidNoteIdError, type Storage } from './storage.js';
+import packageJson from '../package.json' with { type: 'json' };
 
 export function setup(app: Express, storage: Storage) {
+  // Get API version
+  app.get('/version', async (req, res) => {
+    res.json({
+      version: packageJson.version,
+      platform: 'node-typescript'
+    });
+  });
+
   // Get a single Note
   app.get('/notes/:id', async (req, res) => {
     const id = Number(req.params.id);

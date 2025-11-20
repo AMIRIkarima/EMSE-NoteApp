@@ -1,16 +1,15 @@
-import { expect, it, beforeEach, beforeAll, afterAll, describe } from 'vitest';
+import { expect, it, beforeEach, beforeAll, describe } from 'vitest';
 import { default as supertest } from 'supertest';
 import type { Express } from 'express';
 import { SqliteStorage } from '../sqliteStorage.js';
 import { setupApp } from '../index.js';
-
 
 let app: Express;
 let db: SqliteStorage;
 
 beforeAll(() => {
   db = new SqliteStorage();
-  const appGlobals = setupApp({storage: db});
+  const appGlobals = setupApp({ storage: db });
   app = appGlobals.expressApp;
 });
 
@@ -19,8 +18,6 @@ beforeEach(() => {
   db.deleteTables();
   db.createTables();
 });
-
-
 
 describe('/tasks/:id API Endpoints', () => {
   let noteId: number;
@@ -42,6 +39,10 @@ describe('/tasks/:id API Endpoints', () => {
 
     const getResponse = await supertest(app).get(`/notes/${noteId}/tasks`);
     expect(getResponse.status).toBe(200);
-    expect(getResponse.body.find((task: {id: number, content: string}) => task.id === taskId)).toBeUndefined();
+    expect(
+      getResponse.body.find(
+        (task: { id: number; content: string }) => task.id === taskId
+      )
+    ).toBeUndefined();
   });
 });
