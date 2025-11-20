@@ -1,15 +1,16 @@
 {
   "name": "tp6-js-backend",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "type": "module",
   "description": "Backend For VueJS TP",
   "scripts": {
+    "prepare": "ts-patch install",
     "start": "tsc && node --enable-source-maps dist/src/index.js",
     "start:debug": "tsc && node --inspect-brk dist/src/index.js",
     "test": "tsc && vitest run",
     "test:debug": "tsc && vitest --inspect-brk --no-file-parallelism --test-timeout=0",
     "db:reset": "tsc && node dist/scripts/resetDb.js",
-    "prettier": "prettier '**/*.{js,ts}' --write"
+    "format": "prettier '**/*.{js,ts}' --write"
   },
   "author": "Quentin Richaud",
   "license": "ISC",
@@ -20,6 +21,7 @@
     "cors": "~2.8.5",
     "express": "~4.21.1",
     "express-validator": "~7.2.0",
+    "typia": "~10.0.2",
     "ws": "8.18.3"
   },
   "devDependencies": {
@@ -28,10 +30,11 @@
     "@types/express": "~4.0.0",
     "@types/node": "~22.19.0",
     "@types/supertest": "~6.0.3",
-    "prettier": "3.6.2",
     "@types/ws": "8.18.1",
     "eslint": "~8.57.1",
+    "prettier": "3.6.2",
     "supertest": "~7.0.0",
+    "ts-patch": "~3.3.0",
     "typescript": "~5.9.3",
     "vitest": "4.0.7"
   },

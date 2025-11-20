@@ -4,8 +4,10 @@ export type Note = {
   id: number;
   title: string;
   status: NoteStatus;
-  tasks: Array<Task>;
 };
+
+export type NoteWithNbTasks = Note & { nbTasks: number };
+export type NoteWithTasks = Note & { tasks: Task[] };
 
 export type Task = {
   id: number;

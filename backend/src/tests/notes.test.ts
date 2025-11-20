@@ -3,6 +3,7 @@ import { default as supertest } from 'supertest';
 import type { Express } from 'express';
 import { SqliteStorage } from '../sqliteStorage.js';
 import { setupApp } from '../index.js';
+import type { Note } from '../model.js';
 
 let app: Express;
 let db: SqliteStorage;
@@ -121,8 +122,7 @@ describe('/notes API Endpoints', () => {
 });
 
 describe('/notes/:id/restore API endpoint', () => {
-  it('Can restore a previously deleted note', () => {
-    // TODO
+  it('Can restore a previously deleted note', async () => {
     /**
      *   - create a note, with tasks. check it appears in GET /notes
      *   - delete that note, check it does not appear anymore in GET /notes
@@ -131,5 +131,83 @@ describe('/notes/:id/restore API endpoint', () => {
      *   - check that it appears in GET /notes and GET /note/:id
      *   - check that tasks are restored too
      */
+
+    /* Create a note with tasks */
+    const createdNote = (
+      await supertest(app)
+        .post('/notes')
+        .send({ title: 'My Note', status: 'urgent' })
+    ).body;
+    await supertest(app)
+      .post(`/notes/${createdNote.id}/tasks`)
+      .send({ content: 'Task 1' });
+    await supertest(app)
+      .post(`/notes/${createdNote.id}/tasks`)
+      .send({ content: 'Task 2' });
+
+    /* Check GET /notes has our created note */
+    expect(
+      (await supertest(app).get(`/notes`)).body.map((n: Note) => n.id)
+    ).toContainEqual(createdNote.id);
+
+    /* Check GET /note/:id has our created note */
+    expect(
+      (await supertest(app).get(`/notes/${createdNote.id}`)).status
+    ).toEqual(200);
+
+    /* Delete our created note */
+    expect(
+      (await supertest(app).delete(`/notes/${createdNote.id}`)).status
+    ).toEqual(200);
+
+    /* Check that it does not appear anymore in GET /notes */
+    expect(
+      (await supertest(app).get(`/notes`)).body.map((n: Note) => n.id)
+    ).not.toContainEqual(createdNote.id);
+
+    /* Check that it does  not appear in GET /notes/:id */
+    expect(
+      (await supertest(app).get(`/notes/${createdNote.id}`)).status
+    ).toEqual(404);
+
+    /* Restore the note. Check it returns the restored note object with its tasks */
+    const res= await supertest(app).put(`/notes/${createdNote.id}/restore`)
+    expect(res.status).toEqual(200);
+    expect(res.body).toMatchObject({id: createdNote.id, title: createdNote.title, status: createdNote.status})
+    expect(res.body.tasks).toContainEqual({
+      id: expect.any(Number),
+      content: 'Task 1'
+    });
+    expect(res.body.tasks).toContainEqual({
+      id: expect.any(Number),
+      content: 'Task 2'
+    });
+
+    /* Check that it does appear again in GET /notes */
+    let noteInGetResponse = (await supertest(app).get(`/notes`)).body.find(
+      (n: Note) => n.id === createdNote.id
+    );
+    expect(noteInGetResponse.title).toEqual('My Note');
+    expect(noteInGetResponse.status).toEqual('urgent');
+
+    /* Check that it does  appear again in GET /notes/:id */
+    noteInGetResponse = (await supertest(app).get(`/notes/${createdNote.id}`))
+      .body;
+    expect(noteInGetResponse.title).toEqual('My Note');
+    expect(noteInGetResponse.status).toEqual('urgent');
+
+    /* Check that we have the tasks */
+    let responseTasks = (
+      await supertest(app).get(`/notes/${createdNote.id}/tasks`)
+    ).body;
+    expect(responseTasks.length).toEqual(2);
+    expect(responseTasks).toContainEqual({
+      id: expect.any(Number),
+      content: 'Task 1'
+    });
+    expect(responseTasks).toContainEqual({
+      id: expect.any(Number),
+      content: 'Task 2'
+    });
   });
 });

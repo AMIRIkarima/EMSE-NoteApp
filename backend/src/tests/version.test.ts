@@ -17,9 +17,8 @@ describe('/version API endpoint', () => {
   it('Returns the current version and platform', async () => {
     const response = await supertest(app).get('/version');
 
-    debugger;
     expect(response.status).toBe(200);
-    expect(response.body.version).toEqual('1.1.1');
+    expect(response.body.version).toEqual('1.1.2');
     expect(response.body.platform).toEqual('node-typescript');
   });
 });

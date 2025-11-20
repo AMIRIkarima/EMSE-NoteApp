@@ -79,7 +79,7 @@ npx node --inspect-brk dist/server.js
 (Running `ts-node --inspect-brk` doesn't work for whatever reason, it doesn't catch the flag `--inspect-brk`)
 
 
-### Attach chrome debugger
+### Attach chrome d-ebugger
 
 Open chrome://inspect 
 

@@ -19,7 +19,37 @@ beforeEach(() => {
   db.createTables();
 });
 
-describe('/tasks/:id API Endpoints', () => {
+describe('GET /notes/:id/tasks  API Endpoint', () => {
+  it('returns the list of tasks of a note', async () => {
+    const createdNote = (
+      await supertest(app)
+        .post('/notes')
+        .send({ title: 'My Note', status: 'urgent' })
+    ).body;
+    await supertest(app)
+      .post(`/notes/${createdNote.id}/tasks`)
+      .send({ content: 'Task 1' });
+    await supertest(app)
+      .post(`/notes/${createdNote.id}/tasks`)
+      .send({ content: 'Task 2' });
+
+    /* Note: right now I don't ensure that tasks are ordered in order of creation */
+    let responseTasks = (
+      await supertest(app).get(`/notes/${createdNote.id}/tasks`)
+    ).body;
+    expect(responseTasks.length).toEqual(2);
+    expect(responseTasks).toContainEqual({
+      id: expect.any(Number),
+      content: 'Task 1'
+    });
+    expect(responseTasks).toContainEqual({
+      id: expect.any(Number),
+      content: 'Task 2'
+    });
+  });
+});
+
+describe('DELETE /tasks/:id API Endpoint', () => {
   let noteId: number;
 
   beforeEach(async () => {

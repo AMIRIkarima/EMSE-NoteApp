@@ -24,6 +24,7 @@ export function setup(app: Express, storage: Storage) {
       const { title, status } = note;
       res.json({ id, title, status, nbTasks: tasks.length });
     } catch (e) {
+      console.error(e);
       return res
         .status(500)
         .send(JSON.stringify({ error: (e as Error).message }));
@@ -44,6 +45,7 @@ export function setup(app: Express, storage: Storage) {
       });
       res.json(outputNotes);
     } catch (e) {
+      console.error(e);
       res.status(500).send(JSON.stringify({ error: (e as Error).message }));
       throw e;
     }
@@ -74,6 +76,7 @@ export function setup(app: Express, storage: Storage) {
       const note = storage.createNote({ title, status });
       res.json({ id: note.id, title, status, nbTasks: 0 });
     } catch (e) {
+      console.error(e);
       return res
         .status(500)
         .send(JSON.stringify({ error: (e as Error).message }));
@@ -88,6 +91,24 @@ export function setup(app: Express, storage: Storage) {
     try {
       storage.deleteNote(id) ? res.sendStatus(200) : sendNoteNotFoundError(res);
     } catch (e) {
+      console.error(e);
+      return res
+        .status(500)
+        .send(JSON.stringify({ error: (e as Error).message }));
+    }
+  });
+
+  // Restore a deleted note
+  app.put('/notes/:id/restore', (req, res) => {
+    const id = Number(req.params.id);
+    if (Number.isNaN(id)) return sendNoteNotFoundError(res);
+
+    try {
+      const restoredNote = storage.restoreNote(id);
+      if (restoredNote === undefined) sendNoteNotFoundError(res);
+      res.json(restoredNote);
+    } catch (e) {
+      console.error(e);
       return res
         .status(500)
         .send(JSON.stringify({ error: (e as Error).message }));
@@ -108,6 +129,7 @@ export function setup(app: Express, storage: Storage) {
       if (e instanceof InvalidNoteIdError) {
         return sendNoteNotFoundError(res);
       } else {
+        console.error(e);
         return res
           .status(500)
           .send(JSON.stringify({ error: (e as Error).message }));
@@ -135,6 +157,7 @@ export function setup(app: Express, storage: Storage) {
       if (e instanceof InvalidNoteIdError) {
         return sendNoteNotFoundError(res);
       } else {
+        console.error(e);
         return res
           .status(500)
           .send(JSON.stringify({ error: (e as Error).message }));
@@ -150,6 +173,7 @@ export function setup(app: Express, storage: Storage) {
     try {
       storage.deleteTask(id) ? res.sendStatus(200) : sendTaskNotFoundError(res);
     } catch (e) {
+      console.error(e);
       return res
         .status(500)
         .send(JSON.stringify({ error: (e as Error).message }));
