@@ -29,7 +29,8 @@ export class SqliteStorage implements Storage {
     console.log(`Connected to the SQLite database: ${dbPath}`);
 
     console.log('Creating tables');
-    /* Sqlite won't recreate tables nor erase them if they already exist */
+
+    /* Won't recreate tables nor erase them if they already exist */
     this.createTables();
   }
 
