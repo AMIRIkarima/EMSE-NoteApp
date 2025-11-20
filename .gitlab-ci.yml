@@ -23,18 +23,18 @@ testBackend:
         - backend/**/*
 
 
-deployBackend:
-  stage: deploy
-  variables:
-    NODE_ENV: development
-  script:
-    - cd backend/
-    - npm install
-    - ./node_modules/.bin/railway up --service emse_notesapp_backend --detach
-  rules:
-    - if: $CI_COMMIT_BRANCH == "master"
-      changes: 
-        - backend/**/*
-
+#deployBackend:
+#  stage: deploy
+#  variables:
+#    NODE_ENV: development
+#  script:
+#    - cd backend/
+#    - npm install
+#    - ./node_modules/.bin/railway up --service emse_notesapp_backend --detach
+#  rules:
+#    - if: $CI_COMMIT_BRANCH == "master"
+#      changes: 
+#        - backend/**/*
+#
 
 
