@@ -146,7 +146,7 @@ The HTTP provides an endpoint `PUT /notes/:id/restore`, that restores a Note tha
 
 You can use it to implement the following feature:
 
-- When another user deletes a task, instead of hiding it immediatly in our UI, you can gray the deleted Note 
+- When another user deletes a note, instead of hiding it immediatly in our UI, you can gray the deleted Note 
   (and disable any of its controls), and provide buttons that allows to confirm the deletion, or to restore
   the note. 
 
