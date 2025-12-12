@@ -16,7 +16,7 @@
 -->
 <template>
   <error-overlay />
-   <Filter @status-changed="onStatusChanged" />
+  <Filter @status-changed="onStatusChanged" />
   <div class="notes-container">
    
 
@@ -99,7 +99,7 @@
     },
     computed: {
       filteredNotes() {
-        if (!this.selectedStatus) return this.notesList
+        if (this.selectedStatus === 'all') return this.notesList
         return this.notesList.filter(note => note.status === this.selectedStatus)
       }
     },
