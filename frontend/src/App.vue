@@ -16,29 +16,20 @@
 -->
 <template>
   <error-overlay />
+   <Filter @status-changed="onStatusChanged" />
   <div class="notes-container">
-    <!-- 
-      with the directive `v-for`, we loop over the items of the array notesList, and for each item we create
-      an instance of Note component. We need to provide a unique id to each instance of the loop (used by Vue 
-      for state tracking), and we pass the corresponding note object to the Note component using its prop "note"
+   
 
-      See: https://vuejs.org/guide/essentials/list.html
-    -->
+   
     <Note 
-      v-for="note in notesList" 
+      v-for="note in filteredNotes" 
       :key="note.id" 
       :note="note"
+      @delete-note="deleteNote"
+      @tasks-updated="onTasksUpdated"
     ></Note>
 
-    <!--
-      We listen to the custom event defined by the component NoteCreationForm. This event will call the provided
-      method, with the new note object as first argument.
-
-      See: 
-        - https://vuejs.org/guide/essentials/event-handling
-        - https://vuejs.org/guide/components/events
-    -->
-    <NoteCreationForm @onNoteCreated="addNewNote"></NoteCreationForm>
+    <NoteCreationForm @note-created="addNewNote"></NoteCreationForm>
   </div>
 </template>
 
@@ -55,32 +46,19 @@
   import Note from './Note.vue'
   import NoteCreationForm from './NoteCreationForm.vue'
   import ErrorOverlay from './ErrorOverlay.vue'
+  import Filter from './Filter.vue'
 
   export default {
     components: {
-      /* 
-       * Here we register all the children components that will be used in our template. It's the JS object exported
-       * by the `Component.vue` file (this is done by the bundler)
-       *
-       * See: https://vuejs.org/guide/components/registration.html
-      */
-      Note,  // This is a shortcut syntax for `Note: Note`, when the key and the value are the same in a JS object.
+      Note,
       NoteCreationForm,
-      ErrorOverlay
+      ErrorOverlay,
+      Filter
     },
     data() {
       return {
-        /* 
-         * Here we put all the variables we want to use in our template, and initialize them 
-         * with a default value.
-         *
-         * In the template, we can access these variables directly with their names, like `<div>{{notesList[0].name}}</div>
-         *
-         * In the other methods/functions of our Vue component, we can access them as property of `this`, e.g `this.notesList`
-         *
-         * See: https://vuejs.org/guide/essentials/reactivity-fundamentals.html
-         */
-        notesList: [] // array of note objects, that will be populated after requesting notes from the server
+        notesList: [],
+        selectedStatus: ''
       }
     },
     methods: {
@@ -90,24 +68,45 @@
        * to put them under `computed`
        */
       addNewNote(newNote) {
-        this.notesList.push(newNote) // We get this object from the child component NoteCreationForm, that emits it
-                                     // as a custom event
+        this.notesList.push(newNote)
+      },
+      deleteNote(noteId) {
+        console.log('[App] deleteNote called for id=', noteId)
+        fetch(`${HOST}/notes/${noteId}`, { method: 'DELETE' })
+          .then(async res => {
+            console.log('[App] delete response status=', res.status)
+            if (!res.ok) {
+              const body = await res.text().catch(() => '')
+              console.error('[App] delete failed', res.status, body)
+              throw new Error('Failed to delete note')
+            }
+
+            this.notesList = this.notesList.filter(n => n.id !== noteId)
+            console.log('[App] note removed from notesList', noteId)
+          })
+          .catch(err => {
+            console.error('[App] deleteNote error', err)
+            alert('Failed to delete note: ' + (err && err.message ? err.message : 'unknown'))
+          })
+      },
+      onTasksUpdated(noteId, nbTasks) {
+        const idx = this.notesList.findIndex(n => n.id === noteId)
+        if (idx !== -1) this.notesList[idx].nbTasks = nbTasks
+      },
+      onStatusChanged(newStatus) {
+        this.selectedStatus = newStatus
+      }
+    },
+    computed: {
+      filteredNotes() {
+        if (!this.selectedStatus) return this.notesList
+        return this.notesList.filter(note => note.status === this.selectedStatus)
       }
     },
     mounted() {
-      /*
-       * This is a lifecycle hook, this function will run automatically when this component  is mounted in our Vue app.
-       * This is the good place to make our initial server request, because we want it to run at the start of our application,
-       * but not too soon because we need the component to be ready in order to update its content with the result of 
-       * the request.
-       *
-       * See: https://vuejs.org/guide/essentials/lifecycle.html for more info on the lifecycle hooks
-       */
       fetch(`${HOST}/notes`)
         .then(res => res.json())
-        .then(res => this.notesList = res); // Here we update directly the data object `notesList`. Because it was defined
-                                            // in `data`, Vue is watching it, and will automatically update the template
-                                            // when the value changes.
+        .then(res => this.notesList = res);
     }
   }
 </script>

@@ -1,6 +1,6 @@
 <template>
-  <!-- Test me by changing v-show to true, like this: <div v-show="true" class="error-overlay"> -->
-  <div v-show="false" class="error-overlay">
+  <!-- Overlay hidden by default. Set `show` to true to display the error overlay -->
+  <div v-show="show" class="error-overlay">
     <div class="error-window">
       <div class="error-message">TODO: You will need to display a custom error message here</div>
       <button class="close-btn">Close</button>
@@ -13,7 +13,7 @@
 export default {
   data() {
     return {
-      /* TODO */
+      show: false
     };
   }
 }

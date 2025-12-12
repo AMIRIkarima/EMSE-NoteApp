@@ -1,10 +1,7 @@
 <template>
-    <div class="note unimportant">
-        <!-- 
-          TODO add a class that reflect the variable `newNoteStatus` in order to have the 
-          background color updated according to it
-        -->
-        <input class="new-note-title" placeholder="Enter note title...">
+  <div :class="['note', newNoteStatus]">
+        
+        <input class="new-note-title" placeholder="Enter note title..." v-model="newNoteTitle" @keyup.enter="createNewNote">
         
         <div class="status-select">
             <div>
@@ -34,10 +31,13 @@
 
 
 <script>
+import { HOST } from './config.js'
+
 export default {
   data() {
     return {
-      newNoteStatus: 'unimportant'  // default value for "newNoteStatus"
+      newNoteStatus: 'unimportant' , // default value for "newNoteStatus"
+      newNoteTitle: ''
     }
   },
   /** 
@@ -47,21 +47,43 @@ export default {
    *
    * See: https://vuejs.org/guide/components/events.html
    */
-  emits: ['onNoteCreated'],
+  emits: ['note-created'],
   methods: {
-    createNewNote() {
-        /* TODO: 
-         *
-         * - perform checks that the data is valid, or be sure that this method can't be called with 
-         *   invalid data, if you perform checks elsewhere
-         * - send a request to the server to create a new note object
-         * - handle possible error cases (more likely, display a pop up message that says that an unexpected error
-         *   occured)
-         * - on success, read the response from the server to get the complete note object (with its ID, and any possible
-         *   new data that the server created by default)
-         * - send the new note object as a custom event, so the parent component of this one can be aware of the new note.
-         *   For this we will use this.$emit('onNoteCreated', newNote)
-         */
+    async createNewNote() {
+        const title = (this.newNoteTitle || '').trim()
+        const status = this.newNoteStatus
+
+        if (!title) {
+          // don't send request if inputs are empty
+          return
+        }
+
+        try {
+          const res = await fetch(`${HOST}/notes`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title, status })
+          })
+
+          if (!res.ok) {
+            const err = await res.json().catch(() => ({}))
+            const msg = err && err.error ? err.error : 'Failed to create note'
+            alert(msg)
+            return
+          }
+
+          const newNote = await res.json()
+
+          // notify parent about the new note so it can update the list
+          this.$emit('note-created', newNote)
+
+          // reset form
+          this.newNoteTitle = ''
+          this.newNoteStatus = 'unimportant'
+        } catch (e) {
+          console.error(e)
+          alert('An unexpected error occurred while creating the note')
+        }
     }
   }
 }
@@ -108,6 +130,9 @@ $gutter-size: 15px;
         background-color: appColors.$light-green;
         color: color.adjust(appColors.$dark-green, $blackness: 20%);
       }
+      & > .create-btn {
+        color: appColors.$dark-green;
+      }
     }
 
     &.serious {
@@ -115,12 +140,18 @@ $gutter-size: 15px;
         background-color: appColors.$light-yellow;
         color: color.adjust(appColors.$dark-yellow, $blackness: 20%);
       }
+      & > .create-btn {
+        color: appColors.$dark-yellow;
+      }
     }
 
     &.urgent {
       & > input {
         background-color: appColors.$light-red;
         color: color.adjust(appColors.$dark-red, $blackness: 20%);
+      }
+      & > .create-btn {
+        color: appColors.$dark-red;
       }
     }
 

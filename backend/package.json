@@ -20,7 +20,7 @@
     "commander": "~12.1.0",
     "cors": "~2.8.5",
     "express": "~4.21.1",
-    "express-validator": "~7.2.0",
+    "express-validator": "^7.3.1",
     "typia": "~10.0.2",
     "ws": "8.18.3"
   },
