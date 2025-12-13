@@ -29,7 +29,7 @@
       @tasks-updated="onTasksUpdated"
     ></Note>
 
-    <NoteCreationForm @note-created="addNewNote"></NoteCreationForm>
+    <NoteCreationForm @note-created="addNewNote" :filter-status="selectedStatus"></NoteCreationForm>
   </div>
 </template>
 
@@ -99,7 +99,7 @@
     },
     computed: {
       filteredNotes() {
-        if (this.selectedStatus === 'all') return this.notesList
+        if (!this.selectedStatus) return this.notesList
         return this.notesList.filter(note => note.status === this.selectedStatus)
       }
     },

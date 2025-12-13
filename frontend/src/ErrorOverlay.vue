@@ -2,7 +2,7 @@
   <!-- Overlay hidden by default. Set `show` to true to display the error overlay -->
   <div v-show="show" class="error-overlay">
     <div class="error-window">
-      <div class="error-message">TODO: You will need to display a custom error message here</div>
+      <div class="error-message">An unexpected error occurred</div>
       <button class="close-btn">Close</button>
     </div>
     <div class="background"></div>

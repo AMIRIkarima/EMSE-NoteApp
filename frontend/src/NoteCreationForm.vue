@@ -34,9 +34,15 @@
 import { HOST } from './config.js'
 
 export default {
+  props: {
+    filterStatus: {
+      type: String,
+      default: ''
+    }
+  },
   data() {
     return {
-      newNoteStatus: 'unimportant' , // default value for "newNoteStatus"
+      newNoteStatus: this.filterStatus || 'unimportant', 
       newNoteTitle: ''
     }
   },
@@ -48,6 +54,12 @@ export default {
    * See: https://vuejs.org/guide/components/events.html
    */
   emits: ['note-created'],
+  watch: {
+    // when the selected filter changes in the parent, update the creation form status so that the color changes with the filter 
+    filterStatus(newVal) {
+      this.newNoteStatus = newVal || 'unimportant'
+    }
+  },
   methods: {
     async createNewNote() {
         const title = (this.newNoteTitle || '').trim()
@@ -74,12 +86,12 @@ export default {
 
           const newNote = await res.json()
 
-          // notify parent about the new note so it can update the list
+        
           this.$emit('note-created', newNote)
 
-          // reset form
+        
           this.newNoteTitle = ''
-          this.newNoteStatus = 'unimportant'
+          this.newNoteStatus = this.filterStatus || 'unimportant'
         } catch (e) {
           console.error(e)
           alert('An unexpected error occurred while creating the note')
