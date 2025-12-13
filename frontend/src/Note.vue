@@ -28,6 +28,7 @@
 
 <script>
   import { HOST } from './config.js'
+  import bus from './errorBus.js'
 
   export default {
     emits: ['delete-note', 'tasks-updated'],
@@ -54,6 +55,28 @@
         .catch(err => console.error('Failed to load tasks for note', this.note.id, err))
     },
     methods: {
+      onDelete() {
+        this.$emit('delete-note', this.note.id)
+      },
+      async deleteTask(taskId) {
+        try {
+          const res = await fetch(`${HOST}/tasks/${taskId}`, { method: 'DELETE' })
+            if (!res.ok) {
+              const body = await res.text().catch(() => '')
+              console.error('Failed to delete task', taskId, res.status, body)
+              bus.dispatchEvent(new CustomEvent('error', { detail: 'Failed to delete task' }))
+              return
+            }
+          // remove task locally
+          this.tasks = this.tasks.filter(t => t.id !== taskId)
+          // notify parent so it can update nbTasks
+          this.$emit('tasks-updated', this.note.id, this.tasks.length)
+        } catch (e) {
+          console.error(e)
+          bus.dispatchEvent(new CustomEvent('error', { detail: 'An unexpected error occurred while deleting the task' }))
+        }
+      }
+      ,
       async createTask() {
         const content = (this.newTaskContent || '').trim()
         if (!content) return
@@ -66,7 +89,7 @@
           if (!res.ok) {
             const body = await res.text().catch(() => '')
             console.error('Failed to create task', res.status, body)
-            alert('Failed to create task')
+            bus.dispatchEvent(new CustomEvent('error', { detail: 'Failed to create task' }))
             return
           }
           const task = await res.json()
@@ -75,29 +98,7 @@
           this.$emit('tasks-updated', this.note.id, this.tasks.length)
         } catch (e) {
           console.error(e)
-          alert('An unexpected error occurred while creating the task')
-        }
-      },
-
-      onDelete() {
-        this.$emit('delete-note', this.note.id)
-      },
-      async deleteTask(taskId) {
-        try {
-          const res = await fetch(`${HOST}/tasks/${taskId}`, { method: 'DELETE' })
-          if (!res.ok) {
-            const body = await res.text().catch(() => '')
-            console.error('Failed to delete task', taskId, res.status, body)
-            alert('Failed to delete task')
-            return
-          }
-          // remove task locally
-          this.tasks = this.tasks.filter(t => t.id !== taskId)
-          // notify parent so it can update nbTasks
-          this.$emit('tasks-updated', this.note.id, this.tasks.length)
-        } catch (e) {
-          console.error(e)
-          alert('An unexpected error occurred while deleting the task')
+          bus.dispatchEvent(new CustomEvent('error', { detail: 'An unexpected error occurred while creating the task' }))
         }
       }
     }

@@ -2,19 +2,39 @@
   <!-- Overlay hidden by default. Set `show` to true to display the error overlay -->
   <div v-show="show" class="error-overlay">
     <div class="error-window">
-      <div class="error-message">An unexpected error occurred</div>
-      <button class="close-btn">Close</button>
+      <div class="error-message">{{ message || 'An unexpected error occurred' }}</div>
+      <button class="close-btn" @click="close">Close</button>
     </div>
-    <div class="background"></div>
+    <div class="background" @click="close"></div>
   </div>
 </template>
 
 <script>
+import bus from './errorBus.js'
+
 export default {
   data() {
     return {
-      show: false
-    };
+      show: false,
+      message: ''
+    }
+  },
+  created() {
+    // listen for global unexpected errors
+    bus.addEventListener('error', this.onError)
+  },
+  unmounted() {
+    bus.removeEventListener('error', this.onError)
+  },
+  methods: {
+    onError(e) {
+      this.message = e?.detail || 'An unexpected error occurred'
+      this.show = true
+    },
+    close() {
+      this.show = false
+      this.message = ''
+    }
   }
 }
 </script>

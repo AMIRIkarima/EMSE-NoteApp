@@ -32,6 +32,7 @@
 
 <script>
 import { HOST } from './config.js'
+import bus from './errorBus.js'
 
 export default {
   props: {
@@ -80,7 +81,7 @@ export default {
           if (!res.ok) {
             const err = await res.json().catch(() => ({}))
             const msg = err && err.error ? err.error : 'Failed to create note'
-            alert(msg)
+            bus.dispatchEvent(new CustomEvent('error', { detail: msg }))
             return
           }
 
@@ -94,7 +95,7 @@ export default {
           this.newNoteStatus = this.filterStatus || 'unimportant'
         } catch (e) {
           console.error(e)
-          alert('An unexpected error occurred while creating the note')
+          bus.dispatchEvent(new CustomEvent('error', { detail: 'An unexpected error occurred while creating the note' }))
         }
     }
   }

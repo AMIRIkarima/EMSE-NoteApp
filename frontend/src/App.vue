@@ -47,6 +47,7 @@
   import NoteCreationForm from './NoteCreationForm.vue'
   import ErrorOverlay from './ErrorOverlay.vue'
   import Filter from './Filter.vue'
+  import bus from './errorBus.js'
 
   export default {
     components: {
@@ -78,6 +79,8 @@
             if (!res.ok) {
               const body = await res.text().catch(() => '')
               console.error('[App] delete failed', res.status, body)
+              // unexpected network error -> surface in overlay
+              bus.dispatchEvent(new CustomEvent('error', { detail: 'Failed to delete note' }))
               throw new Error('Failed to delete note')
             }
 
@@ -86,7 +89,7 @@
           })
           .catch(err => {
             console.error('[App] deleteNote error', err)
-            alert('Failed to delete note: ' + (err && err.message ? err.message : 'unknown'))
+            bus.dispatchEvent(new CustomEvent('error', { detail: 'Failed to delete note: ' + (err && err.message ? err.message : 'unknown') }))
           })
       },
       onTasksUpdated(noteId, nbTasks) {
